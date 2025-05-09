@@ -75,22 +75,22 @@ export default function MapComponent({ stations }: MapComponentProps) {
     const style = document.createElement('style')
     style.textContent = `
       .leaflet-popup-content-wrapper {
-        border-radius: 12px;
+        border-radius: 8px;
         padding: 0;
         overflow: hidden;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
       }
       .leaflet-popup-content {
         margin: 0;
-        width: 100% !important;
-        max-width: 360px;
+        width: auto !important;
+        max-width: 350px;
       }
       .leaflet-popup-close-button {
         color: white !important;
-        font-size: 20px !important;
+        font-size: 18px !important;
         z-index: 10;
-        top: 10px !important;
-        right: 10px !important;
+        top: 7px !important;
+        right: 7px !important;
       }
       .leaflet-popup-tip {
         background: white;
@@ -101,6 +101,11 @@ export default function MapComponent({ stations }: MapComponentProps) {
       @media (max-width: 500px) {
         .leaflet-popup-content {
           width: 280px !important;
+        }
+      }
+      @media (max-width: 350px) {
+        .leaflet-popup-content {
+          width: 250px !important;
         }
       }
     `
@@ -232,14 +237,14 @@ export default function MapComponent({ stations }: MapComponentProps) {
 
             <Marker position={[station.location.lat, station.location.lng]} icon={getIcon(station.status, "weather")}>
               <Popup className="station-popup">
-                <div className="w-full">
+                <div className="w-full max-w-[320px] sm:max-w-[350px] flex flex-col">
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-bold text-lg">{station.name}</h3>
+                  <div className="bg-primary text-white p-3 rounded-t-lg flex flex-col gap-1">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-bold text-base line-clamp-2">{station.name}</h3>
                       {getStatusBadge(station.status)}
                     </div>
-                    <div className="flex justify-between items-center text-xs text-white/80">
+                    <div className="flex justify-between items-center text-xs text-white/90">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" /> 
                         {formatDate(station.lastUpdated)}
@@ -251,87 +256,64 @@ export default function MapComponent({ stations }: MapComponentProps) {
                   </div>
                   
                   {/* Content */}
-                  <div className="p-4 border-x border-b bg-white dark:bg-gray-900">
-                    <div className="grid grid-cols-2 gap-3">
-                      {/* Temperature */}
-                      <div className="col-span-2 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-900/40 rounded-xl p-3 border border-orange-100 dark:border-orange-800/50 shadow-sm transition-all duration-200 hover:shadow-md">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-orange-700 dark:text-orange-400 text-sm">
-                            {t("sensors.temperature")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="bg-gradient-to-br from-orange-400 to-amber-500 p-2.5 rounded-lg shadow-sm">
-                            <Thermometer className="h-5 w-5 text-white" />
+                  <div className="p-3 border-x border-b rounded-b-lg bg-white dark:bg-gray-900">
+                    {/* Main readings */}
+                    <div className="flex flex-col gap-3">
+                      {/* Temperature & ET0 - Main readings */}
+                      <div className="flex w-full justify-between p-2 border rounded-lg shadow-sm bg-background dark:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          <div className="bg-primary/10 p-1.5 rounded-full">
+                            <Thermometer className="h-4 w-4 text-primary" />
                           </div>
                           <div>
-                            <span className="text-2xl font-bold text-gray-900 dark:text-white">{station.sensors.temperature.toFixed(1)} °C</span>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                              ET₀: {station.sensors.et0.toFixed(2)} {t("units.et0")}
-                            </div>
+                            <div className="text-xs text-muted-foreground">{t("sensors.temperature")}</div>
+                            <div className="text-base font-semibold">{station.sensors.temperature.toFixed(1)} °C</div>
                           </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-muted-foreground">ET₀</div>
+                          <div className="text-base font-semibold">{station.sensors.et0.toFixed(2)} {t("units.et0")}</div>
                         </div>
                       </div>
 
-                      {/* Wind */}
-                      <div className="bg-gradient-to-br from-blue-50 to-slate-50 dark:from-blue-950/40 dark:to-slate-900/40 rounded-xl p-3 border border-blue-100 dark:border-blue-800/50 shadow-sm transition-all duration-200 hover:shadow-md">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-blue-700 dark:text-blue-400 text-sm">
-                            {t("sensors.wind")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="bg-gradient-to-br from-blue-400 to-blue-500 p-2 rounded-lg shadow-sm">
-                            <Wind className="h-4 w-4 text-white" />
+                      {/* Other Sensors - Grid for small screens, flex for larger */}
+                      <div className="grid grid-cols-2 w-full gap-2">
+                        <div className="flex flex-col p-2 border rounded-lg shadow-sm bg-background dark:bg-gray-800">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <Wind className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-xs text-muted-foreground">{t("sensors.wind")}</span>
                           </div>
-                          <div>
-                            <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {station.sensors.windSpeed.toFixed(1)}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              {t("units.wind")}
-                            </div>
-                          </div>
+                          <div className="text-sm font-semibold">
+                            {station.sensors.windSpeed.toFixed(1)} {t("units.wind")}
                         </div>
                       </div>
 
-                      {/* Solar */}
-                      <div className="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/40 dark:to-amber-900/40 rounded-xl p-3 border border-yellow-100 dark:border-yellow-800/50 shadow-sm transition-all duration-200 hover:shadow-md">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-yellow-700 dark:text-yellow-400 text-sm">
-                            {t("sensors.solar")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="bg-gradient-to-br from-yellow-400 to-amber-500 p-2 rounded-lg shadow-sm">
-                            <Sun className="h-4 w-4 text-white" />
+                        <div className="flex flex-col p-2 border rounded-lg shadow-sm bg-background dark:bg-gray-800">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <Sun className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-xs text-muted-foreground">{t("sensors.solar")}</span>
                           </div>
-                          <div>
-                            <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {station.sensors.solarRadiation.toFixed(0)}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              {t("units.solar")}
-                            </div>
-                          </div>
+                          <div className="text-sm font-semibold">
+                            {station.sensors.solarRadiation.toFixed(0)} {t("units.solar")}
                         </div>
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="mt-4 flex items-center gap-2">
-                      <Button asChild className="bg-gradient-to-r from-orange-500 to-amber-500 text-white border-none shadow-sm flex-1 h-9">
+                      {/* Actions - Always full width buttons */}
+                      <div className="flex items-center gap-2 mt-1">
+                        <Button asChild className="flex-1 h-8 text-xs sm:text-sm">
                         <Link href={`/stations/details/${station.id}`}>
-                          <Info className="mr-1.5 h-3.5 w-3.5" />
+                            <Info className="mr-1 h-3.5 w-3.5" />
                           {t("stations.details")}
                         </Link>
                       </Button>
-                      <Button asChild variant="outline" className="shadow-sm flex-1 h-9 hover:bg-orange-50 dark:hover:bg-orange-950/30">
+                        <Button asChild variant="outline" className="flex-1 h-8 text-xs sm:text-sm">
                         <Link href={`/stations/sensor-logs/${station.id}`}>
-                          <ArrowUpRight className="mr-1.5 h-3.5 w-3.5" />
+                            <ArrowUpRight className="mr-1 h-3.5 w-3.5" />
                           {language === "en" ? "Logs" : "บันทึก"}
                         </Link>
                       </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -361,14 +343,14 @@ export default function MapComponent({ stations }: MapComponentProps) {
 
             <Marker position={[station.location.lat, station.location.lng]} icon={getIcon(station.status, "water")}>
               <Popup className="station-popup">
-                <div className="w-full">
+                <div className="w-full max-w-[320px] sm:max-w-[350px] flex flex-col">
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-bold text-lg">{station.name}</h3>
+                  <div className="bg-blue-600 text-white p-3 rounded-t-lg flex flex-col gap-1">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-bold text-base line-clamp-2">{station.name}</h3>
                       {getStatusBadge(station.status)}
                     </div>
-                    <div className="flex justify-between items-center text-xs text-white/80">
+                    <div className="flex justify-between items-center text-xs text-white/90">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" /> 
                         {formatDate(station.lastUpdated)}
@@ -380,67 +362,67 @@ export default function MapComponent({ stations }: MapComponentProps) {
                   </div>
                   
                   {/* Content */}
-                  <div className="p-4 border-x border-b bg-white dark:bg-gray-900">
-                    <div className="grid grid-cols-2 gap-3">
-                      {/* Rainfall */}
-                      <div className="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-950/40 dark:to-blue-900/40 rounded-xl p-3 border border-sky-100 dark:border-sky-800/50 shadow-sm transition-all duration-200 hover:shadow-md">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-sky-700 dark:text-sky-400 text-sm">
-                            {t("stations.rainfall")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="bg-gradient-to-br from-sky-400 to-blue-500 p-2 rounded-lg shadow-sm">
-                            <Cloud className="h-4 w-4 text-white" />
+                  <div className="p-3 border-x border-b rounded-b-lg bg-white dark:bg-gray-900">
+                    {/* Main readings */}
+                    <div className="flex flex-col gap-3">
+                      {/* Main water metrics */}
+                      <div className="grid grid-cols-2 w-full gap-2">
+                        <div className="flex flex-col p-2 border rounded-lg shadow-sm bg-background dark:bg-gray-800">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <Cloud className="h-3.5 w-3.5 text-blue-500" />
+                            <span className="text-xs text-muted-foreground">{t("stations.rainfall")}</span>
                           </div>
-                          <div>
-                            <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {station.sensors.rainfall.toFixed(2)}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              {t("units.rainfall")}
-                            </div>
+                          <div className="text-sm font-semibold">
+                            {station.sensors.rainfall.toFixed(2)} {t("units.rainfall")}
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col p-2 border rounded-lg shadow-sm bg-background dark:bg-gray-800">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <Droplet className="h-3.5 w-3.5 text-blue-500" />
+                            <span className="text-xs text-muted-foreground">{t("stations.water.level")}</span>
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {station.sensors.waterLevel.toFixed(2)} {t("units.water.level")}
                           </div>
                         </div>
                       </div>
 
-                      {/* Water Level */}
-                      <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/40 dark:to-blue-900/40 rounded-xl p-3 border border-indigo-100 dark:border-indigo-800/50 shadow-sm transition-all duration-200 hover:shadow-md">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-indigo-700 dark:text-indigo-400 text-sm">
-                            {t("stations.water.level")}
-                          </span>
+                      {/* Latest rain data with hourly and daily */}
+                      <div className="w-full p-2 border rounded-lg shadow-sm bg-background dark:bg-gray-800">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <Cloud className="h-3.5 w-3.5 text-blue-500" />
+                            <span className="text-xs text-muted-foreground">{language === "en" ? "Rainfall Summary" : "สรุปปริมาณน้ำฝน"}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="bg-gradient-to-br from-indigo-400 to-blue-500 p-2 rounded-lg shadow-sm">
-                            <Droplet className="h-4 w-4 text-white" />
+                        <div className="grid grid-cols-2 gap-2 mt-1.5">
+                          <div>
+                            <div className="text-xs text-muted-foreground">{language === "en" ? "Hourly" : "รายชั่วโมง"}</div>
+                            <div className="text-sm font-semibold">{(station.sensors.rainfall * 0.2).toFixed(2)} {t("units.rainfall")}</div>
                           </div>
                           <div>
-                            <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {station.sensors.waterLevel.toFixed(2)}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              {t("units.water.level")}
-                            </div>
-                          </div>
+                            <div className="text-xs text-muted-foreground">{language === "en" ? "Daily" : "รายวัน"}</div>
+                            <div className="text-sm font-semibold">{station.sensors.rainfall.toFixed(2)} {t("units.rainfall")}</div>
                         </div>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="mt-4 flex items-center gap-2">
-                      <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none shadow-sm flex-1 h-9">
+                      <div className="flex items-center gap-2 mt-1">
+                        <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white flex-1 h-8 text-xs sm:text-sm">
                         <Link href={`/stations/details/${station.id}`}>
-                          <Info className="mr-1.5 h-3.5 w-3.5" />
+                            <Info className="mr-1 h-3.5 w-3.5" />
                           {t("stations.details")}
                         </Link>
                       </Button>
-                      <Button asChild variant="outline" className="shadow-sm flex-1 h-9 hover:bg-blue-50 dark:hover:bg-blue-950/30">
+                        <Button asChild variant="outline" className="flex-1 h-8 text-xs sm:text-sm">
                         <Link href={`/stations/sensor-logs/${station.id}`}>
-                          <ArrowUpRight className="mr-1.5 h-3.5 w-3.5" />
+                            <ArrowUpRight className="mr-1 h-3.5 w-3.5" />
                           {language === "en" ? "Logs" : "บันทึก"}
                         </Link>
                       </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

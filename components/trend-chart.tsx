@@ -3,108 +3,194 @@
 import { useTheme } from "next-themes"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { useLanguage } from "@/components/language-provider"
+import { cn } from "@/lib/utils"
+import { memo, useId } from "react"
 
 interface TrendChartProps {
-  title: string
-  data: Array<{ date: string; value: number }>
+  title?: string
+  data: Array<{ date: string; value: number | null | undefined }>
   dataKey?: string
   yAxisLabel?: string
   color?: string
   height?: number
+  unit?: string
+  showHeader?: boolean
+  icon?: React.ReactNode
+  className?: string
 }
 
-export function TrendChart({
-  title,
+const CustomTooltip = memo(({ active, payload, label, color, backgroundColor, textColor, unit }: any) => {
+  if (active && payload && payload.length) {
+    const value = payload[0]?.value;
+    
+    // Safe guard against null or undefined values
+    if (value === undefined || value === null) {
+      return null;
+    }
+    
+    return (
+      <div 
+        className="rounded-lg border border-border/60 p-2.5 bg-card/95 backdrop-blur-sm shadow-lg text-sm"
+        style={{ 
+          backgroundColor: backgroundColor || 'var(--background)', 
+          color: textColor || 'var(--foreground)',
+        }}
+      >
+        <div className="flex justify-between gap-4 items-center">
+          <span className="text-xs opacity-75">{label}</span>
+          <span className="font-medium">
+            {typeof value === 'number' ? value.toFixed(2) : value}
+            {unit && <span className="ml-1 text-xs opacity-75">{unit}</span>}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+});
+
+CustomTooltip.displayName = 'CustomTooltip';
+
+const TrendChart = memo(({
+  title = "",
   data,
   dataKey = "value",
   yAxisLabel,
   color = "#3b82f6",
   height = 200,
-}: TrendChartProps) {
+  unit,
+  showHeader = true,
+  icon,
+  className
+}: TrendChartProps) => {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
-
-  const textColor = isDark ? "#f8fafc" : "#334155"
-  const gridColor = isDark ? "#334155" : "#e2e8f0"
-  const backgroundColor = isDark ? "#1e293b" : "#ffffff"
+  const { language } = useLanguage()
+  
+  // Generate a unique ID using React's useId hook
+  const uniqueId = useId()
+  const gradientId = `chart-gradient-${uniqueId.replace(/:/g, '')}`
+  
+  // Format date to be more readable
+  const formattedData = data.map(item => {
+    const date = new Date(item.date);
+    const formattedDate = new Intl.DateTimeFormat(language === 'en' ? 'en-US' : 'th-TH', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+    }).format(date);
+    
+    return {
+      ...item,
+      date: formattedDate
+    }
+  });
+  
+  // Calculate statistics
+  const values = data.map(item => item.value).filter(val => val !== null && val !== undefined) as number[];
+  const latest = values.length > 0 ? values[values.length - 1] : 0;
+  const average = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+  
+  const cardClasses = cn(
+    "overflow-hidden border rounded-lg shadow-sm transition-shadow hover:shadow-md", 
+    className
+  );
 
   return (
-    <Card className="border-primary/20 overflow-hidden card-hover">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <span>{title}</span>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-              Latest: {data[data.length - 1]?.value.toFixed(2)}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-primary/30" />
-              Avg: {(data.reduce((acc, curr) => acc + curr.value, 0) / data.length).toFixed(2)}
-            </span>
+    <Card className={cardClasses}>
+      {showHeader && title && (
+        <CardHeader className="pb-0 pt-4 px-4 flex flex-row items-center justify-between bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="flex items-center gap-2">
+            {icon && (
+              <div className="flex items-center justify-center h-6 w-6 rounded-full bg-primary/10">
+                <div className="text-primary">{icon}</div>
+              </div>
+            )}
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
           </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div style={{ height }} className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none" />
+          <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }}></span>
+              <span className="text-muted-foreground ml-1.5 mr-1">
+                {language === 'en' ? 'Latest:' : 'ล่าสุด:'}
+              </span>
+              <span className="font-medium">{latest.toFixed(2)} {unit}</span>
+            </div>
+            <div className="flex items-center">
+              <span className="h-2 w-2 rounded-full bg-primary/40 mr-1.5"></span>
+              <span className="text-muted-foreground mr-1">
+                {language === 'en' ? 'Avg:' : 'เฉลี่ย:'}
+              </span>
+              <span className="font-medium">{average.toFixed(2)} {unit}</span>
+            </div>
+          </div>
+        </CardHeader>
+      )}
+
+      <CardContent className={cn(showHeader && title ? "pt-4" : "pt-0 px-0")}>
+        <div style={{ height }}>
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+            <AreaChart
+              data={formattedData}
+              margin={{
+                top: 10,
+                right: 10,
+                left: 0,
+                bottom: 0,
+              }}
+            >
               <defs>
-                <linearGradient id={`color-${title}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.8} />
-                  <stop offset="95%" stopColor={color} stopOpacity={0} />
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.7} />
+                  <stop offset="60%" stopColor={color} stopOpacity={0.3} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0.1} />
                 </linearGradient>
-                <filter id="shadow">
-                  <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.2" />
-                </filter>
               </defs>
               <CartesianGrid 
                 strokeDasharray="3 3" 
-                stroke={gridColor} 
                 vertical={false}
+                stroke={isDark ? "rgba(255,255,255,0.075)" : "rgba(0,0,0,0.075)"} 
               />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 12, fill: textColor }}
-                tickFormatter={(value) => {
-                  const date = new Date(value)
-                  return `${date.getDate()}/${date.getMonth() + 1}`
-                }}
-                stroke={textColor}
-                axisLine={{ stroke: gridColor }}
-                tickLine={{ stroke: gridColor }}
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 10 }} 
+                tickLine={false}
+                axisLine={{ stroke: isDark ? "rgba(255,255,255,0.075)" : "rgba(0,0,0,0.075)" }}
+                dy={10}
               />
-              <YAxis
-                tick={{ fontSize: 12, fill: textColor }}
-                stroke={textColor}
-                axisLine={{ stroke: gridColor }}
-                tickLine={{ stroke: gridColor }}
+              <YAxis 
+                tick={{ fontSize: 10 }} 
+                tickLine={false} 
+                axisLine={{ stroke: isDark ? "rgba(255,255,255,0.075)" : "rgba(0,0,0,0.075)" }}
                 label={
-                  yAxisLabel
-                    ? {
-                        value: yAxisLabel,
-                        angle: -90,
-                        position: "insideLeft",
-                        style: { textAnchor: "middle", fill: textColor, fontSize: 12 },
-                      }
+                  yAxisLabel 
+                    ? { 
+                        value: yAxisLabel, 
+                        angle: -90, 
+                        position: 'insideLeft',
+                        style: { 
+                          textAnchor: 'middle',
+                          fontSize: 9,
+                          fill: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"
+                        },
+                        dx: -10
+                      } 
                     : undefined
                 }
+                width={40}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: backgroundColor,
-                  borderColor: isDark ? "#334155" : "#e2e8f0",
-                  color: textColor,
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                }}
-                formatter={(value: number) => [value.toFixed(2), ""]}
-                labelFormatter={(label) => {
-                  const date = new Date(label)
-                  return date.toLocaleDateString()
-                }}
-                cursor={{ stroke: color, strokeWidth: 1 }}
+              <Tooltip 
+                cursor={{ stroke: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)", strokeWidth: 1 }}
+                content={
+                  <CustomTooltip 
+                    backgroundColor={isDark ? "hsl(222.2, 84%, 4.9%, 0.95)" : "hsl(0, 0%, 100%, 0.95)"}
+                    textColor={isDark ? "hsl(210, 40%, 98%)" : "hsl(222.2, 84%, 4.9%)"}
+                    color={color}
+                    unit={unit}
+                  />
+                } 
               />
               <Area
                 type="monotone"
@@ -112,10 +198,11 @@ export function TrendChart({
                 stroke={color}
                 strokeWidth={2}
                 fillOpacity={1}
-                fill={`url(#color-${title})`}
+                fill={`url(#${gradientId})`}
+                activeDot={{ r: 4, strokeWidth: 1, stroke: "#fff" }}
+                isAnimationActive={true}
                 animationDuration={1000}
-                animationEasing="ease-in-out"
-                filter="url(#shadow)"
+                connectNulls={true}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -123,4 +210,9 @@ export function TrendChart({
       </CardContent>
     </Card>
   )
-}
+});
+
+TrendChart.displayName = 'TrendChart';
+
+export { TrendChart }
+export default TrendChart

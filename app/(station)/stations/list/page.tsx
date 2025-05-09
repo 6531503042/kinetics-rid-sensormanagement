@@ -227,6 +227,7 @@ export default function StationsListPage() {
                 yAxisLabel={selectedSensorOption.unit}
                 color={selectedSensorOption.color}
                 height={350}
+                unit={selectedSensorOption.unit}
               />
             )}
           </CardContent>

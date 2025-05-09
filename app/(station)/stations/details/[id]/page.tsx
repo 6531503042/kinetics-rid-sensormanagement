@@ -186,21 +186,25 @@ export default function StationDetailsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
           title={t("sensors.humidity")}
-          value={`${station.sensors.humidity.toFixed(1)} ${t("units.humidity")}`}
+          value={`${station.sensors.humidity.toFixed(1)}`}
           icon={Droplet}
           className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20"
+          trend={{ value: 2.5, label: "%", isPositive: true }}
+          unit="%"
         />
         <StatCard
           title={t("sensors.wind")}
-          value={`${station.sensors.windSpeed.toFixed(1)} ${t("units.wind")}`}
+          value={`${station.sensors.windSpeed.toFixed(1)}`}
           icon={Wind}
           className="bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 border-cyan-500/20"
+          unit={t("units.wind")}
         />
         <StatCard
           title={t("sensors.solar")}
-          value={`${station.sensors.solarRadiation.toFixed(0)} ${t("units.solar")}`}
+          value={`${station.sensors.solarRadiation.toFixed(0)}`}
           icon={Sun}
           className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border-yellow-500/20"
+          unit={t("units.solar")}
         />
       </div>
 
@@ -214,17 +218,17 @@ export default function StationDetailsPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="7" onValueChange={handlePeriodChange} className="space-y-4">
-            <TabsList className="grid w-[400px] grid-cols-2">
-              <TabsTrigger value="7" className="text-base">
+            <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+              <TabsTrigger value="7" className="text-sm">
                 {t("stations.period.7days")}
               </TabsTrigger>
-              <TabsTrigger value="30" className="text-base">
+              <TabsTrigger value="30" className="text-sm">
                 {t("stations.period.30days")}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="7" className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
                 <TrendChart
                   title={t("stations.et0")}
                   data={historicalData.map((item) => ({
@@ -234,6 +238,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.et0")}
                   color="#f97316"
                   height={300}
+                  unit={t("units.et0")}
                 />
                 <TrendChart
                   title={t("stations.rainfall")}
@@ -244,6 +249,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.rainfall")}
                   color="#0ea5e9"
                   height={300}
+                  unit={t("units.rainfall")}
                 />
                 <TrendChart
                   title={t("stations.water.level")}
@@ -254,6 +260,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.water.level")}
                   color="#3b82f6"
                   height={300}
+                  unit={t("units.water.level")}
                 />
                 <TrendChart
                   title={t("sensors.temperature")}
@@ -264,6 +271,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.temperature")}
                   color="#ef4444"
                   height={300}
+                  unit="°C"
                 />
                 <TrendChart
                   title={t("sensors.humidity")}
@@ -274,6 +282,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.humidity")}
                   color="#6366f1"
                   height={300}
+                  unit="%"
                 />
                 <TrendChart
                   title={t("sensors.wind")}
@@ -284,6 +293,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.wind")}
                   color="#64748b"
                   height={300}
+                  unit={t("units.wind")}
                 />
                 <TrendChart
                   title={t("sensors.solar")}
@@ -294,12 +304,13 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.solar")}
                   color="#eab308"
                   height={300}
+                  unit={t("units.solar")}
                 />
               </div>
             </TabsContent>
 
             <TabsContent value="30" className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
                 <TrendChart
                   title={t("stations.et0")}
                   data={historicalData.map((item) => ({
@@ -309,6 +320,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.et0")}
                   color="#f97316"
                   height={300}
+                  unit={t("units.et0")}
                 />
                 <TrendChart
                   title={t("stations.rainfall")}
@@ -319,6 +331,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.rainfall")}
                   color="#0ea5e9"
                   height={300}
+                  unit={t("units.rainfall")}
                 />
                 <TrendChart
                   title={t("stations.water.level")}
@@ -329,6 +342,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.water.level")}
                   color="#3b82f6"
                   height={300}
+                  unit={t("units.water.level")}
                 />
                 <TrendChart
                   title={t("sensors.temperature")}
@@ -339,6 +353,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.temperature")}
                   color="#ef4444"
                   height={300}
+                  unit="°C"
                 />
                 <TrendChart
                   title={t("sensors.humidity")}
@@ -349,6 +364,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.humidity")}
                   color="#6366f1"
                   height={300}
+                  unit="%"
                 />
                 <TrendChart
                   title={t("sensors.wind")}
@@ -359,6 +375,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.wind")}
                   color="#64748b"
                   height={300}
+                  unit={t("units.wind")}
                 />
                 <TrendChart
                   title={t("sensors.solar")}
@@ -369,6 +386,7 @@ export default function StationDetailsPage() {
                   yAxisLabel={t("units.solar")}
                   color="#eab308"
                   height={300}
+                  unit={t("units.solar")}
                 />
               </div>
             </TabsContent>

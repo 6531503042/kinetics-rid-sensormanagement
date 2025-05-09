@@ -16,49 +16,111 @@ interface StatCardProps {
     label: string
     isPositive?: boolean
   }
+  unit?: string
+  secondaryValue?: {
+    value: string | number
+    unit?: string
+    label?: string
+  }
+  color?: string
 }
 
 export const StatCard = forwardRef<HTMLDivElement, StatCardProps>(
-  ({ title, value, icon: Icon, description, className, valueRef, trend }, ref) => {
+  ({ 
+    title, 
+    value, 
+    icon: Icon, 
+    description, 
+    className, 
+    valueRef, 
+    trend, 
+    unit, 
+    secondaryValue,
+    color 
+  }, ref) => {
+    // Default color if not provided
+    const cardColor = color || "#3b82f6";
+    
     return (
       <Card 
         className={cn(
-          "overflow-hidden card-hover relative",
-          "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:z-0",
+          "overflow-hidden transition-all duration-200 border rounded-xl",
+          "shadow-sm hover:shadow-lg relative",
           className
         )} 
         ref={ref}
       >
-        <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-          <CardTitle className="text-sm font-medium">
-            {title}
-          </CardTitle>
-          <div className="rounded-full p-2 bg-background/80 backdrop-blur-sm border border-border/50">
-            <Icon className="h-4 w-4 text-primary" />
+        <CardHeader className="pb-1 relative flex items-start">
+          <div className="w-full flex justify-between items-start">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+            <div 
+              className="flex items-center justify-center rounded-full h-9 w-9 -mt-1 -mr-1"
+              style={{ backgroundColor: `${cardColor}15` }}
+            >
+              <Icon 
+                className="h-5 w-5"
+                style={{ color: cardColor }} 
+              />
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="space-y-1">
-            <div className="text-2xl font-bold tracking-tight" ref={valueRef}>
+        
+        <CardContent className="relative">
+          <div className="space-y-3">
+            <div className="flex flex-col">
+              <div className="flex items-baseline mb-1">
+                <div 
+                  ref={valueRef} 
+                  className="text-2xl font-bold"
+                  style={{ color: cardColor }}
+                >
               {value}
             </div>
-            {trend && (
-              <div className="flex items-center gap-1 text-xs">
-                <span className={cn(
-                  "inline-flex items-center px-1.5 py-0.5 rounded-full font-medium",
-                  trend.isPositive 
-                    ? "text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-400/10"
-                    : "text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-400/10"
-                )}>
-                  {trend.value}%
-                </span>
-                <span className="text-muted-foreground">{trend.label}</span>
+                {unit && (
+                  <div className="ml-1 text-sm text-muted-foreground">
+                    {unit}
+                  </div>
+                )}
+              </div>
+              
+              {secondaryValue && (
+                <div className="flex items-baseline text-sm">
+                  <span className="font-medium">
+                    {secondaryValue.label ? `${secondaryValue.label}: ` : ''}
+                    {secondaryValue.value}
+                  </span>
+                  {secondaryValue.unit && (
+                    <span className="ml-1 text-xs text-muted-foreground">
+                      {secondaryValue.unit}
+                    </span>
+                  )}
               </div>
             )}
+            </div>
+
+            {(description || trend) && (
+              <div className="flex items-center pt-1 border-t border-border/30">
             {description && (
-              <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground">
                 {description}
               </p>
+                )}
+                
+                {trend && (
+                  <div 
+                    className={cn(
+                      "inline-flex items-center ml-auto text-xs font-medium",
+                      trend.isPositive ? "text-emerald-600 dark:text-emerald-500" : "text-red-600 dark:text-red-500"
+                    )}
+                  >
+                    <span className="mr-1">
+                      {trend.isPositive ? "↑" : "↓"}
+                    </span>
+                    {trend.value}
+                    {trend.label}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </CardContent>

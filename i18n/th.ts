@@ -33,6 +33,8 @@ export const th = {
   "dashboard.et0.trend": "แนวโน้ม ET₀",
   "dashboard.rainfall.trend": "แนวโน้มปริมาณฝน",
   "dashboard.water.trend": "แนวโน้มระดับน้ำ",
+  "dashboard.overview": "ภาพรวม",
+  "dashboard.trends": "แนวโน้ม",
 
   // Stations
   "stations.title": "สถานี",
@@ -56,7 +58,10 @@ export const th = {
   "sensors.temperature": "อุณหภูมิ",
   "sensors.humidity": "ความชื้น",
   "sensors.wind": "ความเร็วลม",
+  "sensors.wind.direction": "ทิศทางลม",
   "sensors.solar": "รังสีดวงอาทิตย์",
+  "sensors.pressure": "ความกดอากาศ",
+  "sensors.rainfall": "ปริมาณน้ำฝน",
   "sensors.model": "รุ่นเซ็นเซอร์",
   "sensors.ismma": "ISMMA2300",
   "sensors.dqa": "DQA230.1",
@@ -91,5 +96,7 @@ export const th = {
   "units.temperature": "°C",
   "units.humidity": "%",
   "units.wind": "ม./วินาที",
+  "units.wind.direction": "องศา",
   "units.solar": "วัตต์/ตร.ม.",
+  "units.pressure": "เฮกโตปาสคาล",
 }

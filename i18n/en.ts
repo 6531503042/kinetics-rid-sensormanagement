@@ -33,6 +33,8 @@ export const en = {
   "dashboard.et0.trend": "ET₀ Trend",
   "dashboard.rainfall.trend": "Rainfall Trend",
   "dashboard.water.trend": "Water Level Trend",
+  "dashboard.overview": "Overview",
+  "dashboard.trends": "Trends",
 
   // Stations
   "stations.title": "Stations",
@@ -56,7 +58,10 @@ export const en = {
   "sensors.temperature": "Temperature",
   "sensors.humidity": "Humidity",
   "sensors.wind": "Wind Speed",
+  "sensors.wind.direction": "Wind Direction",
   "sensors.solar": "Solar Radiation",
+  "sensors.pressure": "Atmospheric Pressure",
+  "sensors.rainfall": "Rainfall Amount",
   "sensors.model": "Sensor Model",
   "sensors.ismma": "ISMMA2300",
   "sensors.dqa": "DQA230.1",
@@ -91,5 +96,7 @@ export const en = {
   "units.temperature": "°C",
   "units.humidity": "%",
   "units.wind": "m/s",
+  "units.wind.direction": "degrees",
   "units.solar": "W/m²",
+  "units.pressure": "hPa",
 }
